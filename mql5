@@ -1,0 +1,113 @@
+
+// Program: Trading History MT4
+// Developer's Site: forexroboteasy.com
+// Developer: Forex Robot Easy Team
+
+// Include necessary libraries
+#include <Trade\Trade.mqh>
+#include <ChartObjects\ChartObjects.mqh>
+
+// Define global variables
+CTrade trade;
+CChartObjects chartObjects;
+
+// Function to retrieve historical quotes from strategy tester
+void retrieveHistoricalQuotes()
+{
+   // Retrieve necessary data from strategy tester
+   double[] historicalQuotes;
+   int totalQuotes = CopyRates(_Symbol, PERIOD_CURRENT, 0, 100, historicalQuotes);
+
+   // Display historical quotes in the panel
+   for (int i = 0; i < totalQuotes; i++)
+   {
+      Print('Historical Quote ', i+1, ': ', historicalQuotes[i]);
+   }
+}
+
+// Function to create a pending order
+void createPendingOrder(string symbol, int orderType, double price, double stopLoss, double takeProfit)
+{
+   // Create a pending order using the specified parameters
+   trade.BuyStop(symbol, volume, price, stopLoss, takeProfit);
+}
+
+// Function to modify a pending order
+void modifyPendingOrder(int ticket, double stopLoss, double takeProfit)
+{
+   // Modify the parameters of the specified pending order
+   trade.ModifyStopLossTakeProfit(ticket, stopLoss, takeProfit);
+}
+
+// Function to delete a pending order
+void deletePendingOrder(int ticket)
+{
+   // Cancel the specified pending order
+   trade.DeletePendingOrder(ticket);
+}
+
+// Function to open an immediate order
+void openImmediateOrder(string symbol, int orderType, double volume, double stopLoss, double takeProfit)
+{
+   // Open an immediate order using the specified parameters
+   trade.Buy(symbol, volume, stopLoss, takeProfit);
+}
+
+// Function to close an immediate order
+void closeImmediateOrder(int ticket)
+{
+   // Close the specified immediate order
+   trade.Close(ticket);
+}
+
+// Function to calculate trading volume based on percentage method
+double calculateVolumePercentage(double percentage)
+{
+   // Calculate trading volume based on the specified percentage of account balance or equity
+   double accountBalance = AccountInfoDouble(ACCOUNT_BALANCE);
+   double accountEquity = AccountInfoDouble(ACCOUNT_EQUITY);
+   double volume = MathFloor(accountEquity * (percentage / 100));
+
+   return volume;
+}
+
+// Function to determine trading volume based on lot size method
+double calculateVolumeLotSize(double lotSize)
+{
+   // Determine trading volume based on the specified lot size
+   double volume = NormalizeDouble(lotSize * 100000, 2);
+
+   return volume;
+}
+
+// Entry point of the program
+void OnStart()
+{
+   // Retrieve historical quotes and display them in the panel
+   retrieveHistoricalQuotes();
+
+   // Create a pending order with specified parameters
+   createPendingOrder('EURUSD', OP_BUYSTOP, 1.2, 1.18, 1.22);
+
+   // Modify the parameters of a pending order
+   modifyPendingOrder(123456, 1.19, 1.23);
+
+   // Delete a pending order
+   deletePendingOrder(123456);
+
+   // Open an immediate order with specified parameters
+   openImmediateOrder('EURUSD', OP_BUY, 0.01, 1.17, 1.25);
+
+   // Close an immediate order
+   closeImmediateOrder(654321);
+
+   // Calculate trading volume using percentage method
+   double volumePercentage = calculateVolumePercentage(2.5);
+
+   // Calculate trading volume using lot size method
+   double volumeLotSize = calculateVolumeLotSize(0.1);
+
+   // Print the calculated trading volumes
+   Print('Trading Volume (Percentage Method): ', volumePercentage);
+   Print('Trading Volume (Lot Size Method): ', volumeLotSize);
+}
